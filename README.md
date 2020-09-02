@@ -1,3 +1,11 @@
+# Project Roadmap
+- set up backend (express, mongo) - Kha
+- Proof of concept data scraper - Kha
+- Set up Mongo DB properly - Kha + Zain
+- Create new branches for front end and data scraper
+- Look into chart.js, plot.ly, data vis tools - Zain
+- Look into server stuff - Kha + Zain
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
