@@ -1,8 +1,7 @@
 # Project Roadmap
 - set up backend (express, mongo) - Kha
-- Proof of concept data scraper - Kha
 - Set up Mongo DB properly - Kha + Zain
-- Create new branches for front end and data scraper
+- Create new branches for front end
 - Look into chart.js, plot.ly, data vis tools - Zain
 - Look into server stuff - Kha + Zain
 
