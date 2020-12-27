@@ -72,9 +72,25 @@ async function setAttributeValue(context, selector, attribute, attributeValue){
    }, element, attribute, attributeValue);
 }
 
+async function removeElement(context, selector){
+    /*
+    Removes an element and its children
+    INPUTS:
+    context: the page that it is on
+    selector: (str) = selector used in document.querySelector()
+
+    RETURNS:
+    null
+    */
+
+    let element = await context.waitForSelector(selector);
+    await context.evaluate(el => el.remove(), element);
+}
+
 module.exports = {
     getinnerText,
     getchildElementCount,
     getAttributeValue,
-    setAttributeValue
+    setAttributeValue,
+    removeElement
 }

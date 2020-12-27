@@ -8,16 +8,11 @@ async function scrape(){
     const page = await browser.newPage();
 
     const closeBracket = ')'
+    let allDriversList = [];
 
-    // When clicking on a new page on a new tab, wait for the promise
-    // const newPagePromise = new Promise(x => page.once('popup', x));
-
-    // Testing on single page first
     await page.setDefaultNavigationTimeout(0);
     // await page.goto("https://www.f1-fansite.com/f1-results/2019-f1-championship-standings/");
     await page.goto("https://www.f1-fansite.com/f1-results/");
-
-    let scrapedData = [];
 
     // Find navigation table and amount of rows in navigation table
     let navTableSelector = '.motor-sport-results > tbody';
@@ -25,6 +20,10 @@ async function scrape(){
 
     // Iterate through all the rows, then find the amount of columns in the row
     // get year then change target attribute, then open in new tab
+
+    let bottomSocialSelector = '.st-sticky-share-buttons';
+    await scraper.removeElement(page, bottomSocialSelector);
+
     for(let a = 1; a <= navTableRows; a++){
         let navRowSelector = ''
         const navRowSelectorMiddle = ' > tr:nth-child(';
@@ -42,6 +41,7 @@ async function scrape(){
             // Get innerText
             let year = await scraper.getinnerText(page, navYearSelector);
             yearCharLength = year.length;
+            console.log('Current year: ' + year);
 
             // Check if there is any inner text, if there is, work with it
             if(yearCharLength == 4){
@@ -58,8 +58,87 @@ async function scrape(){
                 await page.click(navYearLinkSelector);
                 const newPage = await newPagePromise;   
                 await newPage.waitFor(300); 
+                await newPage.setDefaultNavigationTimeout(0);
 
                 // Add the bottom stuff here, change page to newPage
+                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                 // Find the header and intialize it
+                let headerRowSelector = '.msr_season_driver_results > thead > tr';
+                let headerColumns = await scraper.getchildElementCount(newPage, headerRowSelector);
+
+                let headerKeyList = [];
+
+                await scraper.removeElement(newPage, bottomSocialSelector);
+
+                //  Find the element thead tr, then iterate through all the <th>s innerText
+                for(let i = 1; i <= parseInt(headerColumns); i++){
+                    let tempHeaderRowSelector = ''
+                    const headerRowSelectorMiddle = ' > th:nth-child(';
+                    tempHeaderRowSelector = tempHeaderRowSelector.concat(headerRowSelector, headerRowSelectorMiddle, i, closeBracket);
+
+                    let headerValue = await scraper.getinnerText(newPage, tempHeaderRowSelector);  // added let
+                    headerKeyList.push(headerValue);
+                }
+
+                // Getting Race data for each driver in the year
+
+                let bodyRowSelector = '.msr_season_driver_results > tbody';
+                let bodyRows = await scraper.getchildElementCount(newPage, bodyRowSelector);
+                
+                // Go through all the driver rows
+                for(let i = 1; i <= parseInt(bodyRows); i++){
+                    let driverYearObject = {};
+                    let driverResultsObject = {};
+
+                    driverYearObject.year = year;
+
+                    let tempRowSelector = '';
+                    const tempRowSelectorMiddle = ' > tr:nth-child(';
+                    tempRowSelector = tempRowSelector.concat(bodyRowSelector, tempRowSelectorMiddle, i, closeBracket);
+
+
+                    for(let j = 2; j <= parseInt(headerColumns); j++){
+                        let driverRaceObject = {};
+
+                        let driverStandSelector = '';
+                        const driverStandSelectorMiddle = ' > td:nth-child(';
+                        driverStandSelector = driverStandSelector.concat(tempRowSelector, driverStandSelectorMiddle, j, closeBracket);
+                        
+                        try{
+                            if(j == 2){
+                                let nameSelector = '';
+                                nameSelector = nameSelector.concat(driverStandSelector, ' > a:nth-child(2)');
+                                let nameValue = await scraper.getinnerText(newPage, nameSelector);
+                                driverYearObject.name = nameValue;
+                            }
+                            else if(j == parseInt(headerColumns)){
+                                let totalPointsValue = await scraper.getinnerText(newPage, driverStandSelector);
+                                driverYearObject.totalPoints = totalPointsValue;
+                            }
+                            else{ 
+                                // Get place and store to driverPlaceObject 
+                                let placeValue = await scraper.getinnerText(newPage, driverStandSelector);
+                                driverRaceObject.place = placeValue;
+    
+                                // Get points and store to driverPointObject
+                                let pointValue = await scraper.getAttributeValue(newPage, driverStandSelector, 'title');
+                                driverRaceObject.points = pointValue;
+                                driverResultsObject[headerKeyList[j-1]] = driverRaceObject;
+                            }
+                        }
+                        catch(e){
+                            console.log('year: ' + year);
+                        }
+                        
+                    } 
+
+                    // Add driverResultsObject to driverYearObject
+                    driverYearObject.results = driverResultsObject;
+                    allDriversList.push(driverYearObject);
+                }
+
+                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 // Close the new page
                 await newPage.close();
@@ -68,106 +147,6 @@ async function scrape(){
             }
             
         }
-    }
-
-    
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-     // Find the header and intialize it
-     ////////////////////////////////   FUNCTION THIS GUY   ///////////////////////////////////
-    let headerRowSelector = '.msr_season_driver_results > thead > tr';
-    let headerColumns = await scraper.getchildElementCount(page, headerRowSelector);
-
-    let headerKeyList = [];
-    //  Find the element thead tr, then iterate through all the <th>s innerText
-    for(let i = 1; i <= parseInt(headerColumns); i++){
-        let tempHeaderRowSelector = ''
-        const headerRowSelectorMiddle = ' > th:nth-child(';
-        tempHeaderRowSelector = tempHeaderRowSelector.concat(headerRowSelector, headerRowSelectorMiddle, i, closeBracket);
-
-        let headerValue = await scraper.getinnerText(page, tempHeaderRowSelector);  // added let
-        headerKeyList.push(headerValue);
-    }
-
-    ////////////////////////////////   END OF FUNCTION   ///////////////////////////////////
-
-    /*
-        JSON FORMAT
-        {
-            year: yearNumber,
-            driver: driverName,
-            results:{
-                race1: {
-                    place: str(placeNumber),
-                    points: pointNumber (title in the HTML)
-                },
-                race2: {
-                    place: str(placeNumber),
-                    points: pointNumber (title in the HTML)
-                }
-            },
-            points: pointValue
-        }
-    */
-
-    // Getting Race data for each driver in the year
-    ////////////////////////////////   FUNCTION THIS GUY   ///////////////////////////////////
-    
-    
-    // Find selectors for the rows
-    /*
-        RETURNS: bodyRows: int
-    */
-    let bodyRowSelector = '.msr_season_driver_results > tbody';
-
-    let bodyRows = await scraper.getchildElementCount(page, bodyRowSelector);
-    
-    let allDriversList = [];
-    // Go through all the driver rows
-    for(let i = 1; i <= parseInt(bodyRows); i++){
-        let driverYearObject = {};
-        let driverResultsObject = {};
-
-        driverYearObject.year = year;
-
-        let tempRowSelector = '';
-        const tempRowSelectorMiddle = ' > tr:nth-child(';
-        tempRowSelector = tempRowSelector.concat(bodyRowSelector, tempRowSelectorMiddle, i, closeBracket);
-
-
-        for(let j = 2; j <= parseInt(headerColumns); j++){
-            let driverRaceObject = {};
-
-            let driverStandSelector = '';
-            const driverStandSelectorMiddle = ' > td:nth-child(';
-            driverStandSelector = driverStandSelector.concat(tempRowSelector, driverStandSelectorMiddle, j, closeBracket);
-
-            if(j == 2){
-                let nameSelector = '';
-                nameSelector = nameSelector.concat(driverStandSelector, ' > a:nth-child(2)');
-                let nameValue = await scraper.getinnerText(page, nameSelector);
-                driverYearObject.name = nameValue;
-            }
-            else if(j == parseInt(headerColumns)){
-                let totalPointsValue = await scraper.getinnerText(page, driverStandSelector);
-                driverYearObject.totalPoints = totalPointsValue;
-            }
-            else{ 
-                // Get place and store to driverPlaceObject 
-                let placeValue = await scraper.getinnerText(page, driverStandSelector);
-                driverRaceObject.place = placeValue;
-
-                // Get points and store to driverPointObject
-                let pointValue = await scraper.getAttributeValue(page, driverStandSelector, 'title');
-                driverRaceObject.points = pointValue;
-                driverResultsObject[headerKeyList[j-1]] = driverRaceObject;
-            }
-        } 
-
-        // Add driverResultsObject to driverYearObject
-        driverYearObject.results = driverResultsObject;
-        allDriversList.push(driverYearObject);
     }
 
     testArrayJSON = JSON.stringify(allDriversList);
