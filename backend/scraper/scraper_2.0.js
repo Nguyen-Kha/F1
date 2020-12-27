@@ -11,20 +11,18 @@ async function scrape(){
     let allDriversList = [];
 
     await page.setDefaultNavigationTimeout(0);
-    // await page.goto("https://www.f1-fansite.com/f1-results/2019-f1-championship-standings/");
     await page.goto("https://www.f1-fansite.com/f1-results/");
 
     // Find navigation table and amount of rows in navigation table
     let navTableSelector = '.motor-sport-results > tbody';
     let navTableRows = await scraper.getchildElementCount(page, navTableSelector);
 
-    // Iterate through all the rows, then find the amount of columns in the row
-    // get year then change target attribute, then open in new tab
-
+    // Remove the share to socials div at the bottom of the page
     let bottomSocialSelector = '.st-sticky-share-buttons';
     await scraper.removeElement(page, bottomSocialSelector);
 
     for(let a = 1; a <= navTableRows; a++){
+        // Find the individual rows
         let navRowSelector = ''
         const navRowSelectorMiddle = ' > tr:nth-child(';
         navRowSelector = navRowSelector.concat(navTableSelector, navRowSelectorMiddle, a, closeBracket);
@@ -60,15 +58,13 @@ async function scrape(){
                 await newPage.waitFor(300); 
                 await newPage.setDefaultNavigationTimeout(0);
 
-                // Add the bottom stuff here, change page to newPage
-                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
                  // Find the header and intialize it
                 let headerRowSelector = '.msr_season_driver_results > thead > tr';
                 let headerColumns = await scraper.getchildElementCount(newPage, headerRowSelector);
 
                 let headerKeyList = [];
 
+                // Remove the share to socials div at the bottom of the page
                 await scraper.removeElement(newPage, bottomSocialSelector);
 
                 //  Find the element thead tr, then iterate through all the <th>s innerText
@@ -82,7 +78,6 @@ async function scrape(){
                 }
 
                 // Getting Race data for each driver in the year
-
                 let bodyRowSelector = '.msr_season_driver_results > tbody';
                 let bodyRows = await scraper.getchildElementCount(newPage, bodyRowSelector);
                 
@@ -96,7 +91,6 @@ async function scrape(){
                     let tempRowSelector = '';
                     const tempRowSelectorMiddle = ' > tr:nth-child(';
                     tempRowSelector = tempRowSelector.concat(bodyRowSelector, tempRowSelectorMiddle, i, closeBracket);
-
 
                     for(let j = 2; j <= parseInt(headerColumns); j++){
                         let driverRaceObject = {};
@@ -137,8 +131,6 @@ async function scrape(){
                     driverYearObject.results = driverResultsObject;
                     allDriversList.push(driverYearObject);
                 }
-
-                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 // Close the new page
                 await newPage.close();
