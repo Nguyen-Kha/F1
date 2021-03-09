@@ -1,0 +1,12 @@
+@import
+'~antd/dist/antd.css';
+
+.MenuBar{
+    width: 256px;
+    align-items: center;
+
+    .Sidebar{
+        min-height: 100vh;
+    }  
+}
+

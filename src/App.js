@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import SideBar from './components/SideBar.js';
+import MenuBar from './components/MenuBar.js';
 
 function App() {
   return (
     <div>
-      <SideBar />
+      <MenuBar />
     </div>
   );
 }
