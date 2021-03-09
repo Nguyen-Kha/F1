@@ -1,6 +1,7 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
 import './MenuBar.scss';
+import logo from '../assets/f1-logo.png';
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
@@ -15,6 +16,7 @@ render(){
     return(
         <div className="MenuBar">
             <Sider className="Sidebar">
+                <img src={logo} alt="Logo"/>
                 <Menu theme="dark" onClick={this.handleClick} defaultSelectedKeys={['1']} mode="inline">
                     <SubMenu key="sub1" title="Sort By Year Table">
                         <Menu.Item key="1">Race Results</Menu.Item>
