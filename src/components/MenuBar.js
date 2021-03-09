@@ -16,12 +16,11 @@ render(){
         <div className="MenuBar">
             <Sider className="Sidebar">
                 <Menu theme="dark" onClick={this.handleClick} defaultSelectedKeys={['1']} mode="inline">
-                    <SubMenu key="sub1" title="Navigation One">
-                        <Menu.Item key="1">Option 1</Menu.Item>
-                        <Menu.Item key="2">Option 2</Menu.Item>
-                        <Menu.Item key="3">Option 3</Menu.Item>
+                    <SubMenu key="sub1" title="Sort By Year Table">
+                        <Menu.Item key="1">Race Results</Menu.Item>
+                        <Menu.Item key="2">Driver Results</Menu.Item>
                     </SubMenu>
-                    <SubMenu key="sub2" title="Navigation Two">
+                    <SubMenu key="sub2" title="Sort By Driver Chart">
                         <Menu.Item key="4">Option 4</Menu.Item>
                         <Menu.Item key="5">Option 5</Menu.Item>
                         <Menu.Item key="6">Option 6</Menu.Item>
