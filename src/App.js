@@ -8,9 +8,13 @@ const { Sider } = Layout;
 function App() {
   return (
     <div>
-      <Sider className="Sidebar">
-        <MenuBar />
-      </Sider> 
+      <Layout>
+        <Sider className="Sidebar">
+          <MenuBar />
+        </Sider>
+        <Layout>
+        </Layout>  
+      </Layout> 
     </div>
   );
 }
