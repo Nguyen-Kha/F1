@@ -50,13 +50,13 @@ class RaceResultsTable extends React.Component {
         return(
             <div>
                 <div className="header">
-                    <Dropdown overlay={menu} placement="bottomLeft" arrow>
+                    <Dropdown overlay={menu} placement="bottomLeft">
                         <Button>Select A Year<DownOutlined /></Button>
                     </Dropdown>
-                    <Dropdown overlay={menu} placement="bottomLeft" arrow>
+                    <Dropdown overlay={menu} placement="bottomLeft">
                         <Button>Select A Race<DownOutlined /></Button>
                     </Dropdown>
-                    <Button type="primary">Confirm</Button>
+                    <Button type="primary" style={{margin: 15}}>Confirm</Button>
                 </div>
                 <Table dataSource={dataSource} columns={columns} pagination={false}/>
             </div>

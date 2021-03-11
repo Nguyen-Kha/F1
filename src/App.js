@@ -13,7 +13,7 @@ function App() {
         <Sider className="Sidebar">
           <MenuBar />
         </Sider>
-        <Content>
+        <Content style={{margin: 25}}>
           <RaceResultsTable />
         </Content>  
       </Layout> 
