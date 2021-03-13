@@ -12,11 +12,21 @@ router.get('/', async(request, response) => {
 });
 
 // Get performance for specifc year
-// router.get('/year/:id', async(request, response) => {
-//     let singleYear = request.params.id; // TODO
-//     const yearResults = await Driver.find({year: singleYear});
-//     response.json(yearResults);
-// });
+router.get('/year/:id', async(request, response) => {
+    let singleYear = request.params.id; // TODO
+    const yearResults = await Driver.find({year: singleYear});
+    response.json(yearResults);
+});
+
+// GET NAME AND PLACE - TESTING UNIT
+router.get('/year/:id/tp/:id2', async(request, response) => {
+    let singleYear = request.params.id;
+    let singleTP = request.params.id2;
+    const results = await Driver.find({year: singleYear, totalPoints: singleTP})
+    response.json(results)
+});
+
+// {year: 2000, results:{ $elemMatch: {race: "AUS", fastestLap:true}}}
 
 // Get Single Driver for all years
 router.get('name/', async(request, response) => {
