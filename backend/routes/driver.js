@@ -29,9 +29,11 @@ router.get('/year/:id/tp/:id2', async(request, response) => {
 // {year: 2000, results:{ $elemMatch: {race: "AUS", fastestLap:true}}}
 
 // Get Single Driver for all years
-router.get('name/', async(request, response) => {
+router.get('/name/:id', async(request, response) => {
     // TODO: something to parse for the name, or maybe a body param
     let driverName = request.params.id;
+    // console.log(driverName); If we send localhost:3000/api/driver/name/Lewis%20Hamilton
+    // it will print driverName as 'Lewis Hamilton'
     const nameResults = await Driver.find({name: driverName})
     response.json(nameResults);
 });
