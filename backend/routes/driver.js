@@ -27,6 +27,13 @@ router.get('/year/:id/tp/:id2', async(request, response) => {
 });
 
 // {year: 2000, results:{ $elemMatch: {race: "AUS", fastestLap:true}}}
+// Get Race Results for certain Year
+router.get('/race/:race_id/year/:year_id', async(request, response) => {
+    let raceName = request.params.race_id;
+    let yearNumber = request.params.year_id;
+    const results = await Driver.find({year: yearNumber, results: {$elemMatch: { race: raceName}}})
+    response.json(results)
+});
 
 // Get Single Driver for all years
 router.get('/name/:id', async(request, response) => {
