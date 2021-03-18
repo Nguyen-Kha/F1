@@ -87,10 +87,54 @@ async function removeElement(context, selector){
     await context.evaluate(el => el.remove(), element);
 }
 
+// async function getChildElementSelector(context, selector, i){
+//     /*
+//     Gets a selector's child node - 
+
+//     RETURNS:
+//     JS Selector
+//     */
+
+//     let element = await context.waitForSelector(selector);
+//     let childSelector = await context.evaluate((el, i) => {
+//         return el.childNodes[i];
+//     }, element, i);
+//     console.log('childSelector: ' + childSelector);
+//     return childSelector;
+// }
+
+async function selectorChildHasAttribute(context, selector, i, attribute){
+    /*
+    Checks if selector contains an attribute
+
+    RETURNS:
+    boolean
+    */
+    // try{
+    //     let element = await context.waitForSelector(selector);
+    //     let hasAttribute = await context.evaluate((el, i, attribute) => {
+    //         return el.childNodes[i].hasAttribute(attribute);
+    //     }, element, i, attribute);
+    
+    //     return hasAttribute;
+    // }
+    // catch(e){
+    //     return false;
+    // }
+    let element = await context.waitForSelector(selector);
+    let hasAttribute = await context.evaluate((el, i, attribute) => {
+        return el.childNodes[i].hasAttribute(attribute);
+    }, element, i, attribute);
+    
+    return hasAttribute;
+}
+
 module.exports = {
     getinnerText,
     getchildElementCount,
     getAttributeValue,
     setAttributeValue,
-    removeElement
+    removeElement,
+    // getChildElementSelector,
+    selectorChildHasAttribute,
 }
