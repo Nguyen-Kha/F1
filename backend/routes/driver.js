@@ -56,9 +56,48 @@ router.route('/race/:id').get((request, response) => {
 // Get Single Driver for all years
 router.route('/name/:id').get((request, response) => {
     let driverName = request.params.id;
-    Driver.find({name: driverName})
+    Driver.find({name: driverName}).select({year: 1, name: 1, 'results.race': 1})
+        .then(results => {
+            // Potentially construct the JSON response from the mongoose JSON
+            response.status(200).json(results);
+        })
+        .catch(err => response.status(400).json('Error: ' + err));
+});
+
+// Get Driver's Fastest laps
+router.route('/name/:id/fastestLap').get((request, response) => {
+    let driverName = request.params.id;
+    Driver.find({name: driverName, results: {$elemMatch: { fastestLap: true}}})
         .then(results => {
             response.status(200).json(results);
+        })
+        .catch(err => response.status(400).json('Error: ' + err));
+});
+
+// Get Fastest Laps per year
+router.route('/year/:id/fastestLap').get((request, response) => {
+    let yearNumber = request.params.id;
+    Driver.find({year: yearNumber, results: {$elemMatch: {fastestLap: true}}})
+        .then(resultsMongo => {
+            // Construct the JSON response from the mongoose JSON
+            let newResults = [];
+            // console.log(results[0].name);
+            for(let i = 0; i < resultsMongo.length; i++){
+                // console.log(results[i] + '\n');
+                let singleResult = {};
+                let singleRaceArray = []; // For standardization even tho its a size 1 array
+                singleResult.year = resultsMongo[i].year;
+                singleResult.name = resultsMongo[i].name;
+                singleResult.totalPoints = resultsMongo[i].totalPoints;
+                for(let j = 0; j < resultsMongo[i].results.length; j++){
+                    if(resultsMongo[i].results[j].fastestLap == true){
+                        singleRaceArray.push(resultsMongo[i].results[j]);
+                    }
+                }
+                singleResult.results = singleRaceArray;
+                newResults.push(singleResult);
+            }
+            response.status(200).json(newResults);
         })
         .catch(err => response.status(400).json('Error: ' + err));
 });
