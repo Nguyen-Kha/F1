@@ -181,11 +181,11 @@ router.route('/name/:id/fastestLap').get((request, response) => {
             Promise.resolve(Driver.find({name: { $regex : new RegExp(driverName, "i") }}))
                 .then(driverResult => {
                     if(driverResult.length == 0){
-                        response.status(200).send('Driver not found');
+                        response.status(404).send('Driver not found');
                     }
 
                     else if(resultsMongo.length == 0){
-                        response.status(404).send('No Fastest Laps')
+                        response.status(200).send('No Fastest Laps')
                     }
         
                     else{
