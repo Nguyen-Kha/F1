@@ -1,10 +1,6 @@
 const router = require('express').Router();
 let Driver = require('../models/driver.model');
 
-// TODO: Add if statement in the case that there is only one object
-// so it doesn't return an array of 1 object
-// Only for certain objects that can only have 1 result
-
 // Get all Drivers
 // RETURNS: the entire document
 router.route('/').get((request, response) => {
@@ -17,7 +13,7 @@ router.route('/').get((request, response) => {
 
 // Get performance for specifc year
 // Use for table
-// Returns: year, name, totalPoints, results[race, place]
+// RETURNS: [ {year, name, totalPoints, results[race, place]} ]
 router.route('/year/:id').get((request, response) => {
     let singleYear = request.params.id;
     Driver.find({year: singleYear})
@@ -46,6 +42,7 @@ router.route('/year/:id').get((request, response) => {
 });
 
 // Get Total Points in a Year
+// RETURNS: [ {year, name, totalPoints} ]
 router.route('/year/:id/tp/:id2').get((request, response) => {
     let singleYear = request.params.id;
     let singleTP = request.params.id2;
@@ -64,8 +61,8 @@ router.route('/year/:id/tp/:id2').get((request, response) => {
         .catch(err => response.status(400).json('Error: ' + err));
 });
 
-// {year: 2000, results:{ $elemMatch: {race: "AUS", fastestLap:true}}}
 // Get Race Results for certain Year
+// RETURNS: [ {year, name, totalPoints, results{} } ]
 router.route('/race/:race_id/year/:year_id').get((request, response) => {
     let raceName = request.params.race_id;
     let yearNumber = request.params.year_id;
@@ -85,12 +82,12 @@ router.route('/race/:race_id/year/:year_id').get((request, response) => {
                 }
                 newResults.push(singleResult);
             }
-            response.status(200).json(newResults);
         })
         .catch(err => response.status(400).json('Error: ' + err));
 });
 
 // Get historical results for specific Race
+// RETURNS: [ {year, name, totalPoints, results{} } ]
 router.route('/race/:id').get((request, response) => {
     let raceName = request.params.id;
     Driver.find({ "results.race": raceName})
@@ -109,24 +106,27 @@ router.route('/race/:id').get((request, response) => {
                 }
                 newResults.push(singleResult);
             }
-            response.status(200).json(newResults);
         })
         .catch(err => response.status(400).json('Error: ' + err));
 });
 
-// Get Single Driver for all years
+// Get Single Driver's stats for all years
+// RETURNS: everything about the driver
 router.route('/name/:id').get((request, response) => {
     let driverName = request.params.id;
     Driver.find({name: driverName})
         .then(resultsMongo => {
-            // Potentially construct the JSON response from the mongoose JSON
-            response.status(200).json(resultsMongo);
+            if(resultsMongo.length == 1){
+                response.status(200).json(resultsMongo[0]);
+            }
+            else{
+                response.status(200).json(resultsMongo);
+            }
         })
         .catch(err => response.status(400).json('Error: ' + err));
 });
 
 // Get Driver's Fastest laps
-// TODO: if statement for single array
 router.route('/name/:id/fastestLap').get((request, response) => {
     let driverName = request.params.id;
     Driver.find({name: driverName, results: {$elemMatch: { fastestLap: true}}})
@@ -146,7 +146,14 @@ router.route('/name/:id/fastestLap').get((request, response) => {
                 singleResult.results = singleRaceArray;
                 newResults.push(singleResult);
             }
-            response.status(200).json(newResults);
+
+            if(newResults.length == 1){
+                response.status(200).json(newResults[0]);
+            }
+            else{
+                response.status(200).json(newResults);
+            }
+            
         })
         .catch(err => response.status(400).json('Error: ' + err));
 });
@@ -176,12 +183,62 @@ router.route('/year/:id/fastestLap').get((request, response) => {
         .catch(err => response.status(400).json('Error: ' + err));
 });
 
-// Get all DNF reasons (historical)
 
-// Get DNFs for year
+/*
+// Get all unplaced reasons (historical)
+// Filter for NOT number, NOT ""
+// Consider using regex, "OR" statement
+// AND gives the wrong query, construct the json object to figure out why
+router.route('/DNF').get((request, response) => {
+    // Driver.find({results: {$elemMatch: {place: "DNF"}}})
+    // Driver.find({ $or:[ {results: {$elemMatch: {place: '/^[A-Za-z]+$/'}}},
+    //      {results: {$elemMatch: {place: {'$ne': '^(?!\s*$).+'}}}} ]})
+    Driver.find(
+        {results: {
+            $elemMatch: {
+                place: {
+                    $regex: "/^[A-Za-z]+$/",
+                }
+            }
+        }
+    })
+        .then(resultsMongo => {
+            response.status(200).json(resultsMongo);
+        })
+        .catch(err => response.status(400).json('Error: ' + err));
+});
 
-// Get DNFs for driver
+// Get unplaced for year
+router.route('/DNF/year/:id').get((request, response) => {
+    let yearNumber = request.params.id;
+    Driver.find()
+    .then(resultsMongo => {
 
-// Get DNFs for year and race
+    })
+    .catch(err => response.status(400).json('Error: ' + err));
+})
+
+// Get unplaced for driver
+router.route('/DNF/name/:id').get((request, response) => {
+    let driverName = request.params.id;
+    Driver.find()
+    .then(resultsMongo => {
+
+    })
+    .catch(err => response.status(400).json('Error: ' + err));
+})
+
+// Get unplaced for year and race
+router.route('/DNF/year/:id/race/:id2').get((request, response) => {
+    let yearNumber = request.params.id;
+    let raceName = request.params.id2;
+    Driver.find()
+    .then(resultsMongo => {
+
+    })
+    .catch(err => response.status(400).json('Error: ' + err));
+})
+*/
+
 
 module.exports = router;
