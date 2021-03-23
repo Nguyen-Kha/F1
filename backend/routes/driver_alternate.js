@@ -39,6 +39,15 @@ router.get('/name/:id', async(request, response) => {
     response.json(nameResults);
 });
 
+router.route('/name/:id').get((request, response) => {
+    let driverName = request.params.id;
+    Driver.find({name: driverName}).select({year: 1, name: 1, 'results.race': 1})
+        .then(results => {
+            response.status(200).json(results);
+        })
+        .catch(err => response.status(400).json('Error: ' + err));
+});
+
 /*
 router.route('/add').post((req, res) => {
     const year = Number(req.body.year);
